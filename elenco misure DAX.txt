@@ -1,0 +1,106 @@
+// Aggiunge tutte le misure alla tabella "New Calculation Group"
+var tbl = Model.Tables["New Calculation Group"];
+
+tbl.AddMeasure("Sales Amount", 
+    "SUMX ( Sales, Sales[Quantity] * Sales[Net Price] )", 
+    "Vendite");
+
+tbl.AddMeasure("Total Cost", 
+    "SUMX ( Sales, Sales[Quantity] * Sales[Unit Cost] )", 
+    "Vendite");
+
+tbl.AddMeasure("Margin", 
+    "[Sales Amount] - [Total Cost]", 
+    "Vendite");
+
+tbl.AddMeasure("Margin %", 
+    "DIVIDE ( [Margin], [Sales Amount] )", 
+    "Vendite");
+
+tbl.AddMeasure("Total Quantity", 
+    "SUM ( Sales[Quantity] )", 
+    "Vendite");
+
+tbl.AddMeasure("Pareto Cumulative", @"
+VAR x_pos = SELECTEDVALUE ( X_axis[X] )
+VAR points =
+    ADDCOLUMNS (
+        VALUES ( Customer[CustomerKey] ),
+        ""@Value"", [Metric Value]
+    )
+VAR cumulated_points =
+    WINDOW (
+        1, ABS,
+        x_pos, ABS,
+        points,
+        ORDERBY ( [@Value], DESC, Customer[CustomerKey], ASC )
+    )
+RETURN
+    SUMX ( cumulated_points, [@Value] )", "Pareto");
+
+tbl.AddMeasure("Pareto Amount", @"
+VAR x_pos = SELECTEDVALUE ( X_axis[X] )
+VAR points =
+    ADDCOLUMNS (
+        VALUES ( Customer[CustomerKey] ),
+        ""@Value"", [Metric Value]
+    )
+VAR selected_point =
+    WINDOW (
+        x_pos, ABS,
+        x_pos, ABS,
+        points,
+        ORDERBY ( [@Value], DESC, Customer[CustomerKey], ASC )
+    )
+RETURN
+    SELECTCOLUMNS ( selected_point, [@Value] )", "Pareto");
+
+tbl.AddMeasure("Pareto %", 
+    "DIVIDE ( [Pareto Cumulative], [Metric Value] )", 
+    "Pareto");
+
+tbl.AddMeasure("Metric Value", @"
+SWITCH (
+    SELECTEDVALUE ( Metric[Measure] ),
+    ""Margin"", [Margin],
+    ""Sales Amount"", [Sales Amount],
+    ""Total Cost"", [Total Cost],
+    ""Total Quantity"", [Total Quantity],
+    ERROR ( ""Measure not selected in Metric[Measure]"" )
+)", "Pareto");
+
+tbl.AddMeasure("Customer Name", @"
+VAR x_pos = SELECTEDVALUE ( X_axis[X] )
+VAR points =
+    ADDCOLUMNS (
+        ALLSELECTED ( Customer[CustomerKey], Customer[Name] ),
+        ""@Value"", [Metric Value]
+    )
+VAR selected_point =
+    WINDOW (
+        x_pos, ABS,
+        x_pos, ABS,
+        points,
+        ORDERBY ( [@Value], DESC, Customer[CustomerKey], ASC )
+    )
+RETURN
+    SELECTCOLUMNS ( selected_point, Customer[Name] )", "Pareto");
+
+tbl.AddMeasure("Pareto Classic", @"
+VAR points =
+    ADDCOLUMNS (
+        ALLSELECTED ( Customer[Name] ),
+        ""@Value"", [Metric Value]
+    )
+VAR current_value = [Metric Value]
+VAR cumulated_points = 
+    FILTER (
+        points,
+        [@Value] >= current_value
+    )
+RETURN
+    SUMX ( cumulated_points, [@Value] )", "Pareto");
+
+tbl.AddMeasure("Pareto Classic %", 
+    "DIVIDE ( [Pareto Classic], CALCULATE ( [Metric Value], ALLSELECTED ( Customer[Name] ) ) )", 
+    "Pareto");
