@@ -6,6 +6,8 @@ Porting del report Power BI "Vendite e Pareto clienti" su **Metabase Open Source
 
 *Screenshot generato con i dati di esempio sintetici di `warehouse/02_seed.sql`.*
 
+📘 **[Guida e confronto con Power BI](docs/GUIDA_PowerBI_vs_Metabase.md)**: mappa dei concetti, equivalenza delle misure DAX, ciclo di vita, quando scegliere cosa, rischi.
+
 ## Perché "manutenibile"
 
 Metabase OSS salva domande e dashboard nel proprio database applicativo; la serializzazione in YAML è una funzione delle edizioni a pagamento. Qui la fonte di verità è il repository:
