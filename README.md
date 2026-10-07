@@ -38,3 +38,6 @@ Le tabelle principali utilizzate nel progetto sono:
 3. Definire le relazioni tra le tabelle (es. `Sales[CustomerKey] → Customer[CustomerKey]`).
 4. Creare le misure DAX previste.
 5. Progettare e pubblicare il report.
+
+## Versione Metabase OSS
+Nella cartella [`metabase/`](metabase/README.md) lo stesso report (KPI, andamento, Pareto e classificazione ABC clienti) è disponibile su **Metabase Open Source**, gestito come codice: query SQL versionate, definizione dichiarativa del dashboard e deploy automatico tramite API.
